@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADA Agents de SimpliRoute · Capacitación de Partners</title>
+<style>
+    :root {
+        --bg: #0b1220;
+        --bg-card: #141e33;
+        --bg-card-2: #1a2742;
+        --blue: #2f7df6;
+        --blue-soft: #7db2ff;
+        --green: #2ecc8f;
+        --green-bg: rgba(46, 204, 143, 0.14);
+        --amber: #f5b942;
+        --amber-bg: rgba(245, 185, 66, 0.13);
+        --red: #ff6b6b;
+        --wa: #25d366;
+        --wa-bubble: #056162;
+        --text: #eef3fb;
+        --text-dim: #9fb0cc;
+        --border: rgba(255,255,255,0.09);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        overflow: hidden;
+    }
+    .slide-deck { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+    @media (min-width: 769px) {
+        .slide-deck {
+            max-width: calc(100vh * 16 / 9);
+            max-height: calc(100vw * 9 / 16);
+            margin: auto;
+            position: absolute;
+            inset: 0;
+        }
+    }
+    .slide {
+        position: absolute;
+        width: 100%; height: 100%;
+        display: flex; flex-direction: column;
+        justify-content: center; align-items: center;
+        text-align: center;
+        padding: 48px 64px 80px;
+        opacity: 0; visibility: hidden;
+        transition: opacity 0.35s;
+        background:
+            radial-gradient(1100px 500px at 85% -10%, rgba(47,125,246,0.16), transparent 60%),
+            radial-gradient(800px 500px at -10% 110%, rgba(47,125,246,0.10), transparent 55%),
+            var(--bg);
+        overflow: hidden;
+    }
+    .slide.active { opacity: 1; visibility: visible; }
+    .slide-content {
+        width: 100%; max-width: 1180px; max-height: 100%;
+        display: flex; flex-direction: column;
+        justify-content: center; align-items: center;
+        gap: 18px;
+    }
+
+    .pxlogo { height: 42px; width: auto; margin-bottom: 2px; }
+
+    .eyebrow {
+        font-size: 13px; letter-spacing: 2.5px; text-transform: uppercase;
+        color: var(--blue-soft); font-weight: 700;
+    }
+    h1 {
+        font-size: clamp(34px, 5vw, 64px); line-height: 1.08; font-weight: 800;
+        background: linear-gradient(120deg, #ffffff 30%, var(--blue-soft));
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    h2 { font-size: clamp(24px, 3.2vw, 40px); font-weight: 800; line-height: 1.12; }
+    .subtitle { font-size: clamp(15px, 1.6vw, 20px); color: var(--text-dim); max-width: 820px; }
+
+    .badge {
+        display: inline-flex; align-items: center; gap: 10px;
+        padding: 9px 22px; border-radius: 999px;
+        font-weight: 800; font-size: clamp(13px, 1.5vw, 17px); letter-spacing: 0.5px;
+    }
+    .badge.si { background: var(--green-bg); color: var(--green); border: 1.5px solid var(--green); }
+    .badge.no { background: var(--amber-bg); color: var(--amber); border: 1.5px solid var(--amber); }
+
+    .sev {
+        display: inline-block; padding: 4px 14px; border-radius: 999px;
+        font-size: 12.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    }
+    .sev.warning { background: var(--amber-bg); color: var(--amber); }
+    .sev.critical { background: rgba(255,107,107,0.14); color: var(--red); }
+
+    .que-avisa {
+        font-size: clamp(16px, 1.9vw, 22px); color: var(--text);
+        background: var(--bg-card); border: 1px solid var(--border);
+        border-radius: 14px; padding: 14px 26px; max-width: 950px;
+    }
+    .que-avisa b { color: var(--blue-soft); }
+
+    .diagram {
+        display: flex; align-items: stretch; justify-content: center;
+        gap: 0; flex-wrap: nowrap; width: 100%; margin-top: 6px;
+    }
+    .node {
+        background: var(--bg-card); border: 1px solid var(--border);
+        border-radius: 16px; padding: 18px 14px;
+        width: 210px; min-height: 150px; flex: 0 1 auto;
+        display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 8px;
+    }
+    .node .icon { font-size: clamp(34px, 4.5vw, 52px); line-height: 1; }
+    .node .label { font-weight: 800; font-size: clamp(13px, 1.4vw, 16px); }
+    .node .desc { font-size: clamp(11.5px, 1.2vw, 13.5px); color: var(--text-dim); line-height: 1.35; }
+    .node.alerta { border-color: var(--green); background: var(--green-bg); }
+    .node.alerta-critica { border-color: var(--red); background: rgba(255,107,107,0.10); }
+    .node.bloqueado { border: 2px dashed var(--amber); background: var(--amber-bg); }
+    .arrow {
+        align-self: center; font-size: clamp(20px, 2.4vw, 30px);
+        color: var(--blue-soft); padding: 0 10px; font-weight: 800; flex: 0 0 auto;
+    }
+
+    .stats { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
+    .stat {
+        background: var(--bg-card); border: 1px solid var(--border);
+        border-radius: 16px; padding: 22px 30px; min-width: 200px;
+    }
+    .stat .num { font-size: clamp(34px, 4.5vw, 52px); font-weight: 800; color: var(--blue-soft); line-height: 1; }
+    .stat .lbl { font-size: clamp(12.5px, 1.4vw, 15px); color: var(--text-dim); margin-top: 10px; }
+    .stat.green .num { color: var(--green); }
+    .stat.amber .num { color: var(--amber); }
+
+    .nota { font-size: clamp(12px, 1.3vw, 14.5px); color: var(--text-dim); max-width: 900px; }
+    .nota b { color: var(--text); }
+
+    .phone {
+        width: 100%; max-width: 420px;
+        background: #0e1b1a;
+        border: 1px solid var(--border); border-radius: 22px;
+        padding: 16px; text-align: left;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+    }
+    .phone .wa-head {
+        display: flex; align-items: center; gap: 10px;
+        padding: 6px 6px 12px; border-bottom: 1px solid rgba(255,255,255,0.07); margin-bottom: 12px;
+    }
+    .phone .wa-avatar {
+        width: 38px; height: 38px; border-radius: 50%;
+        background: linear-gradient(135deg, #2f7df6, #7db2ff);
+        display: flex; align-items: center; justify-content: center; font-size: 18px;
+    }
+    .phone .wa-name { font-weight: 800; font-size: 15px; }
+    .phone .wa-sub { font-size: 11.5px; color: var(--wa); }
+    .bubble {
+        background: var(--wa-bubble); border-radius: 12px; border-top-left-radius: 4px;
+        padding: 12px 14px; font-size: 14.5px; line-height: 1.5; color: #eafff4;
+        max-width: 92%; margin-bottom: 8px;
+    }
+    .bubble b { color: #fff; }
+    .wa-btns { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+    .wa-btn {
+        background: rgba(255,255,255,0.06); border: 1px solid rgba(37,211,102,0.4);
+        color: var(--wa); border-radius: 9px; padding: 9px; text-align: center;
+        font-weight: 700; font-size: 13.5px;
+    }
+
+    .estados { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%; max-width: 920px; }
+    .estado-card {
+        display: flex; gap: 14px; align-items: flex-start; text-align: left;
+        background: var(--bg-card); border: 1px solid var(--border);
+        border-radius: 14px; padding: 16px 18px;
+    }
+    .estado-card .em { font-size: 30px; line-height: 1; }
+    .estado-card .t { font-weight: 800; font-size: 15.5px; margin-bottom: 3px; }
+    .estado-card .d { font-size: 13px; color: var(--text-dim); line-height: 1.4; }
+    .estado-card.ok { border-color: var(--green); }
+    .estado-card.warn { border-color: var(--amber); }
+
+    table.resumen {
+        border-collapse: collapse; width: 100%; max-width: 1050px;
+        font-size: clamp(12.5px, 1.4vw, 16.5px);
+    }
+    table.resumen th, table.resumen td {
+        padding: 10px 14px; border-bottom: 1px solid var(--border); text-align: left;
+    }
+    table.resumen th { color: var(--text-dim); font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px; }
+    table.resumen td.estado { font-weight: 800; white-space: nowrap; }
+    .ok { color: var(--green); }
+    .pend { color: var(--amber); }
+    table.resumen code { color: var(--blue-soft); font-size: 0.9em; }
+
+    .progress-bar {
+        position: fixed; top: 0; left: 0; height: 4px;
+        background: linear-gradient(90deg, var(--blue), var(--blue-soft));
+        transition: width 0.3s; z-index: 1000;
+    }
+    .nav-controls {
+        position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+        display: flex; align-items: center; gap: 18px; z-index: 1000;
+    }
+    .nav-btn {
+        background: rgba(255,255,255,0.08); border: 1px solid var(--border);
+        color: #fff; width: 42px; height: 42px; border-radius: 50%;
+        cursor: pointer; font-size: 18px;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.18); }
+    .slide-counter { color: var(--text-dim); font-size: 14px; }
+
+    /* grid de agentes (3 columnas) */
+    .agents { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; width: 100%; max-width: 1080px; }
+    .agent {
+        text-align: left; background: var(--bg-card); border: 1px solid var(--border);
+        border-radius: 14px; padding: 16px 18px;
+    }
+    .agent .em { font-size: 26px; }
+    .agent .t { font-weight: 800; font-size: 15px; margin: 8px 0 4px; }
+    .agent .d { font-size: 12.5px; color: var(--text-dim); line-height: 1.4; }
+    .agent .tag { display:inline-block; margin-top:9px; font-size:10.5px; font-weight:700; color:var(--blue-soft); background:rgba(47,125,246,.14); border:1px solid rgba(47,125,246,.3); border-radius:6px; padding:2px 8px; }
+
+    @media (max-width: 820px) {
+        .slide { padding: 28px 18px 84px; }
+        .diagram { flex-wrap: wrap; gap: 10px; }
+        .arrow { transform: rotate(90deg); padding: 2px 0; }
+        .node { width: 78%; min-height: 0; }
+        .estados, .agents { grid-template-columns: 1fr; }
+    }
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<div class="slide-deck">
+
+<!-- 1 · PORTADA -->
+<div class="slide active">
+    <div class="slide-content">
+        <div class="eyebrow">SimpliRoute · Capacitación de Partners</div>
+        <h1>ADA Agents de SimpliRoute</h1>
+        <p class="subtitle">Cómo posicionar y vender el primer agente de ejecución autónoma para la última milla — con agentes preconfigurados y un enfoque en <b>vender ROI, no IA</b>.</p>
+        <div class="diagram">
+            <div class="node"><div class="icon">🧠</div><div class="label">Qué es ADA</div><div class="desc">El agente que resuelve, no solo optimiza</div></div>
+            <div class="arrow">→</div>
+            <div class="node"><div class="icon">📦</div><div class="label">Agentes listos</div><div class="desc">Casos pre-empaquetados para vender</div></div>
+            <div class="arrow">→</div>
+            <div class="node alerta"><div class="icon">💰</div><div class="label">Cómo se cobra</div><div class="desc">Plan Small y créditos</div></div>
+        </div>
+        <p class="nota">Guía comercial para el partner · foco en operaciones Mid Market</p>
+    </div>
+</div>
+
+<!-- 2 · QUÉ ES ADA -->
+<div class="slide">
+    <div class="slide-content">
+        <div class="eyebrow">Qué es ADA</div>
+        <h2>El agente que resuelve en la calle, no solo en el papel</h2>
+        <div class="que-avisa">Las herramientas tradicionales optimizan rutas, pero cuando surge un imprevisto le <b>devuelven el problema al equipo</b>. ADA es un agente de ejecución autónoma: detecta, contacta y <b>resuelve la incidencia</b> sin intervención humana constante, integrándose a cualquier software de última milla.</div>
+        <div class="stats">
+            <div class="stat"><div class="num">+1,200</div><div class="lbl">clientes en 27 países</div></div>
+            <div class="stat green"><div class="num">+42k</div><div class="lbl">vehículos diarios · +30M visitas/mes</div></div>
+            <div class="stat amber"><div class="num">11</div><div class="lbl">años de tecnología propia</div></div>
+        </div>
+        <p class="nota">Ejecuta en todos los canales — WhatsApp, llamada, email — en tiempo real, y mantiene al equipo informado con alertas y traspasos.</p>
+    </div>
+</div>
+
+<!-- 3 · EL PITCH SIMPLIFICADO -->
+<div class="slide">
+    <div class="slide-content">
+        <div class="eyebrow">El pitch en una frase</div>
+        <h2>Casi todos los clientes quieren lo mismo</h2>
+        <div class="que-avisa">“Que un sistema <b>vigile la operación</b>, <b>avise a la persona correcta</b> cuando algo pasa y <b>ayude a resolverlo</b>.” Esa secuencia cubre el 80% de lo que piden los clientes, sin importar el país o la industria.</div>
+        <div class="diagram">
+            <div class="node"><div class="icon">👁️</div><div class="label">1 · Pasa algo</div><div class="desc">Ada detecta el evento: entrega fallida, desvío, sobreestadía, dirección mala</div></div>
+            <div class="arrow">→</div>
+            <div class="node"><div class="icon">💬</div><div class="label">2 · Avisa a alguien</div><div class="desc">Contacta a la persona correcta por WhatsApp o llamada</div></div>
+            <div class="arrow">→</div>
+            <div class="node alerta"><div class="icon">✅</div><div class="label">3 · Se resuelve</div><div class="desc">Reagenda, escala, confirma o cierra — sin que nadie estuviera mirando</div></div>
+        </div>
+        <p class="nota">Ese es el gancho comercial: no vendes un software complejo, vendes una operación que se resuelve sola.</p>
+    </div>
+</div>
+
+<!-- 4 · PRODUCTO, NO TRAJE A MEDIDA -->
+<div class="slide">
+    <div class="slide-content">
+        <div class="eyebrow">Por qué gana en Mid Market</div>
+        <h2>Un producto configurable, no un desarrollo a medida</h2>
+        <div class="que-avisa">La misma receta sirve a decenas de clientes; solo cambian <b>cuatro perillas</b>. Ajustarlas es <b>configuración</b> — por eso se despliega rápido y a un precio accesible, ideal para Mid Market.</div>
+        <div class="diagram">
+            <div class="node"><div class="icon">🎯</div><div class="label">Evento</div><div class="desc">Qué dispara al agente</div></div>
+            <div class="arrow">+</div>
+            <div class="node"><div class="icon">👤</div><div class="label">A quién</div><div class="desc">Cliente, conductor o coordinador</div></div>
+            <div class="arrow">+</div>
+            <div class="node"><div class="icon">📡</div><div class="label">Canal</div><div class="desc">WhatsApp, voz o dashboard</div></div>
+            <div class="arrow">+</div>
+            <div class="node alerta"><div class="icon">⚙️</div><div class="label">Acción</div><div class="desc">Reagendar, escalar, corregir, cerrar</div></div>
+        </div>
+        <p class="nota">Mensaje para el partner: despliegue en semanas, no en meses; upsell natural conforme crece la flota del cliente.</p>
+    </div>
+</div>
+
+<!-- 5 · AGENTES PRECONFIGURADOS -->
+<div class="slide">
+    <div class="slide-content">
+        <div class="eyebrow">Lo que ya viene listo</div>
+        <h2>📦 Agentes preconfigurados</h2>
+        <div class="agents">
+            <div class="agent"><div class="em">📦</div><div class="t">Rescate de entregas fallidas</div><div class="d">Contacta al cliente, corrige datos y reagenda el 100% de los pedidos fallidos.</div><span class="tag">Más demandado</span></div>
+            <div class="agent"><div class="em">📍</div><div class="t">Georeferenciamiento</div><div class="d">Detecta y corrige direcciones de baja calidad antes de rutear.</div><span class="tag">Foco ROI</span></div>
+            <div class="agent"><div class="em">⏱️</div><div class="t">Sobreestadía</div><div class="d">Alerta cuando el vehículo lleva demasiado tiempo detenido.</div><span class="tag">Alta demanda</span></div>
+            <div class="agent"><div class="em">🛰️</div><div class="t">Vigilancia de ruta</div><div class="d">Detecta desvíos y paradas no planificadas en tiempo real.</div><span class="tag">Alta demanda</span></div>
+            <div class="agent"><div class="em">🔔</div><div class="t">Resolución de incidencias</div><div class="d">No solo notifica: ejecuta la acción y cierra la incidencia con contexto.</div><span class="tag">Popular</span></div>
+            <div class="agent"><div class="em">🕵️</div><div class="t">Auditoría y anomalías</div><div class="d">Detecta patrones de pérdida, robo o detenciones no autorizadas.</div><span class="tag">Popular</span></div>
+        </div>
+        <p class="nota">Salen listos de fábrica y se configuran a la operación. Lidera con <b>Rescate</b> y <b>Georeferenciamiento</b>: el ROI es el más fácil de demostrar.</p>
+    </div>
+</div>
+
+<!-- 6 · CÓMO SE VE -->
+<div class="slide">
+    <div class="slide-content">
+        <div class="eyebrow">Cómo se ve trabajando</div>
+        <h2>💬 El cliente recibe un WhatsApp, no una llamada perdida</h2>
+        <div class="phone">
+            <div class="wa-head">
+                <div class="wa-avatar">🚚</div>
+                <div><div class="wa-name">Operación de última milla</div><div class="wa-sub">● cuenta verificada</div></div>
+            </div>
+            <div class="bubble">
+                Hola <b>María</b> 👋, pasamos a entregar su pedido y no logramos encontrarle. Queremos reprogramar su entrega sin costo.<br><br>
+                ¿Le viene bien mañana?
+                <div class="wa-btns">
+                    <div class="wa-btn">✅ Sí, confirmo</div>
+                    <div class="wa-btn">📅 Otra fecha</div>
+                    <div class="wa-btn">💬 Necesito ayuda</div>
+                </div>
+            </div>
+        </div>
+        <p class="nota">Ada opera <b>24/7</b> y resuelve según la respuesta. Todo queda registrado en una <b>torre de control</b> en vivo (pendiente · en curso · escalado · resuelto) para el equipo del cliente.</p>
+    </div>
+</div>
+
+<!-- 6b · TORRE DE CONTROL -->
+<div class="slide">
+    <div class="slide-content">
+        <div class="eyebrow">Cómo se ve · torre de control</div>
+        <h2>📋 Todo queda registrado, en vivo</h2>
+        <div class="que-avisa">El equipo del cliente ve cada incidencia y su estado — <b>pendiente, en curso, escalado o resuelto</b> — actualizado por Ada en tiempo real.</div>
+        <div style="display:flex;gap:14px;width:100%;max-width:1060px;margin-top:2px">
+            <div style="flex:1;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-top:3px solid var(--amber);border-radius:12px;padding:13px;min-height:210px">
+                <div style="display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:13px;margin-bottom:12px">🕐 Pendiente <span style="color:var(--text-dim)">0</span></div>
+                <div style="color:var(--text-dim);font-size:12px;text-align:center;margin-top:44px">Sin incidentes</div>
+            </div>
+            <div style="flex:1;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-top:3px solid #7c83ff;border-radius:12px;padding:13px;min-height:210px">
+                <div style="display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:13px;margin-bottom:12px">📞 En curso <span style="color:var(--text-dim)">2</span></div>
+                <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 11px;margin-bottom:9px">
+                    <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-family:monospace;font-size:12px;color:#dfe7f5">INC-37ad3bb5</span><span style="font-size:9.5px;color:var(--text-dim);border:1px solid var(--border);border-radius:6px;padding:1px 6px">Rescate</span></div>
+                    <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:9.5px;font-weight:700;color:#e8b84b;background:rgba(245,185,66,.15);border-radius:5px;padding:2px 7px">Media</span><span style="font-size:9.5px;color:var(--text-dim)">hace 2 h</span></div>
+                </div>
+                <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 11px">
+                    <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-family:monospace;font-size:12px;color:#dfe7f5">INC-99b96c94</span><span style="font-size:9.5px;color:var(--text-dim);border:1px solid var(--border);border-radius:6px;padding:1px 6px">Georef</span></div>
+                    <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:9.5px;font-weight:700;color:#e8b84b;background:rgba(245,185,66,.15);border-radius:5px;padding:2px 7px">Media</span><span style="font-size:9.5px;color:var(--text-dim)">hace 3 h</span></div>
+                </div>
+            </div>
+            <div style="flex:1;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-top:3px solid var(--red);border-radius:12px;padding:13px;min-height:210px">
+                <div style="display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:13px;margin-bottom:12px">⊗ Escalado <span style="color:var(--text-dim)">0</span></div>
+                <div style="color:var(--text-dim);font-size:12px;text-align:center;margin-top:44px">Sin incidentes</div>
+            </div>
+            <div style="flex:1;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-top:3px solid var(--green);border-radius:12px;padding:13px;min-height:210px">
+                <div style="display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:13px;margin-bottom:12px">✓ Resuelto <span style="color:var(--text-dim)">1</span></div>
+                <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 11px">
+                    <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-family:monospace;font-size:12px;color:#dfe7f5">INC-8594d34f</span><span style="font-size:9.5px;color:var(--text-dim);border:1px solid var(--border);border-radius:6px;padding:1px 6px">Rescate</span></div>
+                    <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:9.5px;font-weight:700;color:#2ecc8f;background:rgba(46,204,143,.15);border-radius:5px;padding:2px 7px">Reagendado</span><span style="font-size:9.5px;color:var(--text-dim)">hace 1 h</span></div>
+                </div>
+            </div>
+        </div>
+        <p class="nota">La torre solo interviene en lo que escala; Ada lleva la mayoría de <b>pendiente a resuelto</b> sin intervención humana.</p>
+    </div>
+</div>
+
+<!-- 7 · CASO DE ÉXITO -->
+<div class="slide">
+    <div class="slide-content">
+        <div class="eyebrow">Caso de éxito · rescate de entregas</div>
+        <h2>De devolución a segunda oportunidad</h2>
+        <div class="que-avisa">En una operación real de paquetería, alrededor de <b>1 de cada 2 devoluciones</b> era simplemente “cliente ausente”. Con el agente de rescate contactando por WhatsApp y reagendando, se recuperaron entregas que iban directo a devolución.</div>
+        <div class="stats">
+            <div class="stat green"><div class="num">1 de 2</div><div class="lbl">devoluciones eran rescatables</div></div>
+            <div class="stat amber"><div class="num">+4 pts</div><div class="lbl">de tasa de entrega sostenida por el rescate</div></div>
+            <div class="stat"><div class="num">cientos</div><div class="lbl">de entregas recuperadas al mes a escala</div></div>
+        </div>
+        <p class="nota">El mismo agente, sin desarrollo a medida. Cada entrega recuperada es un viaje que no se repite y una venta que no se cae.</p>
+    </div>
+</div>
+
+<!-- 7b · VENDER ROI · GEOREFERENCIAMIENTO -->
+<div class="slide">
+    <div class="slide-content">
+        <div class="eyebrow">Vender ROI, no IA</div>
+        <h2>💡 El ROI del agente de georeferenciamiento</h2>
+        <div class="que-avisa">El partner no vende “IA”: vende <b>plata que se deja de perder</b>. Ejemplo Mid Market — <b>15.000 entregas/mes</b>, de las cuales ~14% traen dirección mala que hoy se cae del plan y ADA corrige antes de rutear.</div>
+        <div class="stats">
+            <div class="stat"><div class="num">~1,365</div><div class="lbl">entregas recuperadas / mes<br>(tasa de rescate 65%)</div></div>
+            <div class="stat green"><div class="num">~$3,400</div><div class="lbl">valor recuperado / mes<br>($2.50 por entrega)</div></div>
+            <div class="stat amber"><div class="num">~6.8x</div><div class="lbl">retorno vs Plan Small<br>($500/mes)</div></div>
+        </div>
+        <p class="nota">15.000 entregas/mes · ~14% recuperables (2.100) · 65% de rescate · $2.50 por entrega → beneficio neto ≈ <b>$2,900/mes</b>. El % recuperable está <b>medido en pruebas reales</b>; valor y tasa son supuestos editables. A mayor volumen, el plan escala a Starter/Growth.</p>
+    </div>
+</div>
+
+<!-- 8 · PRICING · PLAN SMALL -->
+<div class="slide">
+    <div class="slide-content">
+        <div class="eyebrow">Pricing · el plan para Mid Market</div>
+        <h2>💰 Plan ADA Small</h2>
+        <div class="stats">
+            <div class="stat"><div class="num">$500</div><div class="lbl">USD / mes · fee base</div></div>
+            <div class="stat green"><div class="num">200</div><div class="lbl">créditos incluidos / mes</div></div>
+            <div class="stat amber"><div class="num">x veh.</div><div class="lbl">se dimensiona por vehículo</div></div>
+        </div>
+        <table class="resumen">
+            <tr><th>Nivel de operación por vehículo</th><th>Créditos / veh · mes</th><th>Cobertura con el plan base</th><th>Costo prom. / veh</th></tr>
+            <tr><td class="estado">Optimizada · alertas moderadas (~38/mes)</td><td>20</td><td>hasta 10 vehículos</td><td class="ok">~50 USD</td></tr>
+            <tr><td class="estado">Alta intensidad · alertas frecuentes (~84/mes)</td><td>45</td><td>~4 vehículos (+ balance libre)</td><td class="pend">~125 USD</td></tr>
+        </table>
+        <p class="nota">Precio de entrada accesible para flotas pequeñas; el consumo escala con la actividad real de cada vehículo.</p>
+    </div>
+</div>
+
+<!-- 9 · PRICING · QUÉ SON LOS CRÉDITOS -->
+<div class="slide">
+    <div class="slide-content">
+        <div class="eyebrow">Cómo explicar el consumo</div>
+        <h2>El crédito: una sola bolsa, flexible</h2>
+        <div class="que-avisa">En lugar de cobrar por cada mensaje o segundo de llamada, ADA usa un <b>saldo único de créditos</b> que se adapta al mix del mes. Más WhatsApp y menos llamadas, o al revés — los créditos cubren el consumo de forma dinámica.</div>
+        <div class="stats">
+            <div class="stat green"><div class="num">~32</div><div class="lbl">mensajes de WhatsApp por 1 crédito</div></div>
+            <div class="stat"><div class="num">~1</div><div class="lbl">crédito por llamada de voz</div></div>
+            <div class="stat amber"><div class="num">mensual</div><div class="lbl">el saldo no es acumulable al mes siguiente</div></div>
+        </div>
+        <p class="nota">Regla para el partner: dimensiona por alertas esperadas por vehículo, elige el mix de canales y sugiere el nivel (20 o 45 créditos/veh).</p>
+    </div>
+</div>
+
+<!-- 10 · PRICING · OTROS PLANES -->
+<div class="slide">
+    <div class="slide-content">
+        <div class="eyebrow">Contexto · la escalera de planes</div>
+        <h2>Hacia dónde crece el cliente</h2>
+        <table class="resumen">
+            <tr><th>Plan</th><th>Fee mensual</th><th>Créditos</th><th>Nº WhatsApp conectables</th><th>Para quién</th></tr>
+            <tr><td class="estado ok">Small</td><td>$500</td><td>200</td><td>1 número</td><td>Flotas pequeñas · Mid Market</td></tr>
+            <tr><td class="estado">Starter</td><td>$2,000</td><td>1,000</td><td>Hasta 3</td><td>Primer salto de volumen</td></tr>
+            <tr><td class="estado">Growth</td><td>$8,500</td><td>5,000</td><td>Hasta 30</td><td>Reportes a medida · workflows · constructor de alertas</td></tr>
+            <tr><td class="estado">Corporate</td><td>$22,500</td><td>15,000</td><td>Hasta 50</td><td>SSO · Audit Log · ejecutivo asignado</td></tr>
+        </table>
+        <p class="nota">Empieza a la mayoría de tus clientes Mid Market en <b>Small</b> y haz upsell a Starter/Growth conforme crecen la flota y las integraciones. *Valores en USD.</p>
+    </div>
+</div>
+
+<!-- 10b · OBJECIONES -->
+<div class="slide">
+    <div class="slide-content">
+        <div class="eyebrow">Manejo de objeciones</div>
+        <h2>🛡️ Las 4 objeciones y cómo resolverlas</h2>
+        <div class="estados">
+            <div class="estado-card warn"><div class="em">🧩</div><div><div class="t">“Ya tengo un TMS / ruteador.”</div><div class="d">ADA no lo reemplaza: se integra y resuelve lo que el TMS deja en manos del equipo — las incidencias en la calle.</div></div></div>
+            <div class="estado-card warn"><div class="em">🤖</div><div><div class="t">“La IA no entiende mi operación.”</div><div class="d">No es genérica: se configura a tus reglas y aprende de la ejecución real, no de hilos de correo.</div></div></div>
+            <div class="estado-card warn"><div class="em">💸</div><div><div class="t">“Es caro / no hay presupuesto.”</div><div class="d">Se paga solo: el ROI del rescate y la georeferencia supera la inversión desde el primer mes. Entrada desde Plan Small.</div></div></div>
+            <div class="estado-card warn"><div class="em">🧑‍💼</div><div><div class="t">“Mi equipo tendrá que aprender otra herramienta.”</div><div class="d">Ejecución invisible: ADA vive dentro de tus sistemas actuales, sin una interfaz nueva que adoptar.</div></div></div>
+        </div>
+        <p class="nota">Regla de oro: cada objeción se responde con un <b>resultado medible</b>, no con más características técnicas.</p>
+    </div>
+</div>
+
+<!-- 10c · GUÍA DE PROSPECCIÓN -->
+<div class="slide">
+    <div class="slide-content">
+        <div class="eyebrow">Cómo prospectar ADA</div>
+        <h2>🧭 Una pregunta por dolor, un agente por respuesta</h2>
+        <table class="resumen">
+            <tr><th>Explora</th><th>Pregunta clave</th><th>Abre la venta de</th></tr>
+            <tr><td class="estado">🗺️ Contexto</td><td>¿Qué sistemas usan (TMS/WMS/ERP) y qué volumen mensual manejan?</td><td>Diagnóstico general</td></tr>
+            <tr><td class="estado">📦 Entregas fallidas</td><td>¿Qué % falla en primer intento y cuánto cuesta reprocesar cada una?</td><td class="ok">Rescate de entregas</td></tr>
+            <tr><td class="estado">📍 Datos y direcciones</td><td>¿Qué tan seguido fallan por direcciones malas? ¿Cómo las corrigen hoy?</td><td class="ok">Georeferenciamiento</td></tr>
+            <tr><td class="estado">🛰️ Seguridad y ruta</td><td>¿Tienen desvíos, detenciones prolongadas o pérdidas sin control?</td><td>Vigilancia + Auditoría</td></tr>
+            <tr><td class="estado">📊 Análisis</td><td>¿Cuánto tardan en tener reportes? ¿Necesitan BI para preguntas simples?</td><td>Análisis de datos</td></tr>
+            <tr><td class="estado">🎯 Cierre</td><td>¿Cuáles 2-3 dolores son críticos este año? ¿Presupuesto 2026? ¿Quién más decide?</td><td class="pend">Definir piloto</td></tr>
+        </table>
+        <p class="nota">No interrogues: usa <b>1-2 preguntas por área</b> para detectar el dolor con mayor ROI y aterrizar en un agente concreto.</p>
+    </div>
+</div>
+
+<!-- 11 · CIERRE -->
+<div class="slide">
+    <div class="slide-content">
+        <div class="eyebrow">Cómo posicionarlo en Mid Market</div>
+        <h2>Tres claves para vender ADA</h2>
+        <div class="estados">
+            <div class="estado-card ok"><div class="em">📦</div><div><div class="t">Vende un resultado, no un software</div><div class="d">Lidera con un agente pre-empaquetado (rescate, sobreestadía) y un ROI concreto.</div></div></div>
+            <div class="estado-card ok"><div class="em">⚡</div><div><div class="t">Despliegue rápido</div><div class="d">Es configuración, no desarrollo: semanas, no meses.</div></div></div>
+            <div class="estado-card"><div class="em">💰</div><div><div class="t">Entrada accesible</div><div class="d">Plan Small desde $500/mes; el consumo escala con la operación.</div></div></div>
+            <div class="estado-card"><div class="em">📈</div><div><div class="t">Ingreso recurrente</div><div class="d">Créditos mensuales + upsell natural a Starter/Growth.</div></div></div>
+        </div>
+        <p class="nota">Mientras otros venden IA que habla, tú vendes a ADA que resuelve.</p>
+    </div>
+</div>
+
+</div><!-- /.slide-deck -->
+
+<div class="nav-controls">
+    <button class="nav-btn" onclick="prevSlide()">←</button>
+    <span class="slide-counter"><span id="current">1</span> / <span id="total">15</span></span>
+    <button class="nav-btn" onclick="nextSlide()">→</button>
+</div>
+
+<script>
+    let current = 1;
+    const total = document.querySelectorAll('.slide').length;
+    document.getElementById('total').textContent = total;
+
+    function showSlide(n) {
+        if (n < 1) n = 1;
+        if (n > total) n = total;
+        current = n;
+        document.querySelectorAll('.slide').forEach((s, i) => {
+            s.classList.toggle('active', i === n - 1);
+        });
+        document.getElementById('current').textContent = n;
+        document.getElementById('progressBar').style.width = (n / total * 100) + '%';
+    }
+    function nextSlide() { showSlide(current + 1); }
+    function prevSlide() { showSlide(current - 1); }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+    });
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.nav-controls')) nextSlide();
+    });
+    showSlide(1);
+</script>
+</body>
+</html>
